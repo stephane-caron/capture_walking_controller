@@ -174,6 +174,85 @@
         }
       }
     },
+    "airbus_staircase_cps":
+    {
+      "com_height": 0.78,
+      "init_dsp_duration": 0.3, // change 1/2: CPS needs shorter boundary DSPs
+      "single_support_duration": 1.4,
+      "double_support_duration": 0.2,
+      "final_dsp_duration": 0.1, // change 2/2: CPS needs shorter boundary DSPs
+      "swing_height": 0.24,
+      "landing_ratio": 0.1,
+      "takeoff_ratio": 0.3,
+      "contacts":
+      [
+        {
+          "pose": { "translation": [-0.04,  0.09, 0.000] },
+          "surface": "LeftFootCenter"
+        },
+        {
+          "pause_after_swing": false,
+          "pose": { "translation": [-0.04, -0.09, 0.000] },
+          "surface": "RightFootCenter",
+          "swing": { "takeoff_offset": [-0.03, 0.0, 0.0], "takeoff_pitch": 0.6 }
+        },
+        {
+          "pose": { "translation": [0.24,   0.09, 0.185] },
+          "surface": "LeftFootCenter",
+          "swing": { "takeoff_offset": [-0.02, 0.0, 0.0] }
+        },
+        {
+          "pause_after_swing": false,
+          "pose": { "translation": [0.24,  -0.09, 0.185] },
+          "surface": "RightFootCenter",
+          "swing": { "takeoff_offset": [-0.03, 0.0, 0.0], "takeoff_pitch": 0.6 }
+        },
+        {
+          "pose": { "translation": [0.48,   0.09, 0.370] },
+          "surface": "LeftFootCenter",
+          "swing": { "takeoff_offset": [-0.02, 0.0, 0.0] }
+        },
+        {
+          "pause_after_swing": false,
+          "pose": { "translation": [0.48,  -0.09, 0.370] },
+          "surface": "RightFootCenter",
+          "swing": { "takeoff_offset": [-0.03, 0.0, 0.0], "takeoff_pitch": 0.6 }
+        },
+        {
+          "pose": { "translation": [0.72,   0.09, 0.555] },
+          "surface": "LeftFootCenter",
+          "swing": { "takeoff_offset": [-0.02, 0.0, 0.0] }
+        },
+        {
+          "pause_after_swing": false,
+          "pose": { "translation": [0.72,  -0.09, 0.555] },
+          "surface": "RightFootCenter",
+          "swing": { "takeoff_offset": [-0.03, 0.0, 0.0], "takeoff_pitch": 0.6 }
+        },
+        {
+          "pose": { "translation": [0.96,   0.09, 0.740] },
+          "surface": "LeftFootCenter",
+          "swing": { "height": 0.2, "takeoff_offset": [-0.02, 0.0, 0.0] }
+        },
+        {
+          "pause_after_swing": false,
+          "pose": { "translation": [0.96,  -0.09, 0.740] },
+          "surface": "RightFootCenter",
+          "swing": { "height": 0.2, "takeoff_offset": [-0.03, 0.0, 0.0], "takeoff_pitch": 0.6 }
+        },
+        { "pose": { "translation": [1.20,   0.09, 0.885] }, "surface": "LeftFootCenter"  },
+        { "pose": { "translation": [1.20,  -0.09, 0.885] }, "surface": "RightFootCenter" }
+      ],
+      "hmpc":
+      {
+        "weights":
+        {
+          "jerk": 1.0,
+          "vel": [10.0, 300.0],
+          "zmp": 1000.0
+        }
+      }
+    },
     "ashibumi":
     {
       "com_height": 0.78,
