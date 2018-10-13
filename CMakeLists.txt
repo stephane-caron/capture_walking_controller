@@ -8,10 +8,9 @@ set(CMAKE_CXX_FLAGS "-pedantic -Wno-long-long -Wall -Wextra -Wcast-align -Wcast-
 include(cmake/base.cmake)
 include(cmake/boost.cmake)
 
-set(PROJECT_NAME lipm_walking_controller)
-set(PROJECT_DESCRIPTION "Walking controller based on linear inverted pendulum tracking")
-set(PROJECT_URL https://github.com/stephane-caron/lipm_walking_controller/)
-set(PROJECT_VERSION 1.0.0)
+set(PROJECT_NAME capture_walking_controller)
+set(PROJECT_DESCRIPTION "Capturability-based controller for walking with variable-height")
+set(PROJECT_URL https://github.com/stephane-caron/capture_walking_controller)
 
 # setup_project()  # remove for catkin
 

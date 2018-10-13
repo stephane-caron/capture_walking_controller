@@ -1,8 +1,8 @@
-# LIPM Walking Controller
+# Capture Walking Controller
 
-Source code of the walking controller used in the experiments of [Stair
-Climbing Stabilization of the HRP-4 Humanoid Robot using Whole-body Admittance
-Control](https://hal.archives-ouvertes.fr/hal-01875387/document).
+Source code of the walking controller used in the simulations of
+[Capturability-based Pattern Generation for Walking with Variable
+Height](https://hal.archives-ouvertes.fr/hal-01689331/document).
 
 ## Installation
 
