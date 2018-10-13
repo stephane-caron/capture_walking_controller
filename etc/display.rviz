@@ -423,7 +423,7 @@ Visualization Manager:
       Visual Enabled: true
     - Class: rviz/MarkerArray
       Enabled: true
-      Marker Topic: /lipm_walking/ExtraMarkers
+      Marker Topic: /capture_walking/ExtraMarkers
       Name: Extra markers
       Namespaces:
         {}
@@ -431,7 +431,7 @@ Visualization Manager:
       Value: true
     - Class: rviz/MarkerArray
       Enabled: true
-      Marker Topic: /lipm_walking/FootForceSensors
+      Marker Topic: /capture_walking/FootForceSensors
       Name: Foot force sensors
       Namespaces:
         {}
@@ -439,7 +439,7 @@ Visualization Manager:
       Value: true
     - Class: rviz/MarkerArray
       Enabled: true
-      Marker Topic: /lipm_walking/FootstepMarkers
+      Marker Topic: /capture_walking/FootstepMarkers
       Name: Foot steps
       Namespaces:
         {}
@@ -447,7 +447,7 @@ Visualization Manager:
       Value: true
     - Class: rviz/MarkerArray
       Enabled: true
-      Marker Topic: /lipm_walking/PendulumObserver
+      Marker Topic: /capture_walking/PendulumObserver
       Name: Pendulum observer
       Namespaces:
         {}
@@ -455,7 +455,7 @@ Visualization Manager:
       Value: true
     - Class: rviz/MarkerArray
       Enabled: true
-      Marker Topic: /lipm_walking/PendulumReference
+      Marker Topic: /capture_walking/PendulumReference
       Name: Pendulum reference
       Namespaces:
         {}
@@ -481,7 +481,7 @@ Visualization Manager:
       Radius: 0.03
       Shaft Diameter: 0.1
       Shaft Length: 0.1
-      Topic: /lipm_walking/CoMPreview
+      Topic: /capture_walking/CoMPreview
       Unreliable: false
       Value: true
     - Alpha: 1
@@ -504,7 +504,7 @@ Visualization Manager:
       Radius: 0.03
       Shaft Diameter: 0.1
       Shaft Length: 0.1
-      Topic: /lipm_walking/SwingFootTrajectory
+      Topic: /capture_walking/SwingFootTrajectory
       Unreliable: false
       Value: true
   Enabled: true
