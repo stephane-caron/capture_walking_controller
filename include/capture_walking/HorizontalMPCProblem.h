@@ -43,7 +43,7 @@ namespace capture_walking
    */
   struct HorizontalMPCProblem
   {
-    /** Initialize a new capture problem.
+    /** Initialize new problem.
      *
      */
     HorizontalMPCProblem();

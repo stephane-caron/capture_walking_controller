@@ -21,16 +21,17 @@
 
 #pragma once
 
-#include <lipm_walking/Pendulum.h>
-#include <lipm_walking/Contact.h>
-#include <lipm_walking/HorizontalMPC.h>
+#include <capture_walking/Pendulum.h>
+#include <capture_walking/Contact.h>
+#include <capture_walking/HorizontalMPC.h>
+#include <capture_walking/Preview.h>
 
 namespace capture_walking
 {
-  /** MPC solution with integrator for playback.
+  /** Solution to a horizontal model predictive control problem.
    *
    */
-  struct HorizontalMPCSolution
+  struct HorizontalMPCSolution : public Preview
   {
     /** Default constructor.
      *
@@ -74,7 +75,7 @@ namespace capture_walking
      * \note This function only applies to one-step capture solutions.
      *
      */
-    void integrate(Pendulum & state, double dt);
+    void integrate(Pendulum & state, double dt) override;
 
     /** Playback integration of CoM state reference.
      *
@@ -110,26 +111,8 @@ namespace capture_walking
       return jerkTraj_;
     }
 
-    /** Get current playback step.
-     *
-     */
-    inline unsigned playbackStep()
-    {
-      return playbackStep_;
-    }
-
-    /** Get current playback time.
-     *
-     */
-    inline double playbackTime()
-    {
-      return playbackTime_;
-    }
-
   private:
     Eigen::VectorXd jerkTraj_;
     Eigen::VectorXd stateTraj_;
-    double playbackTime_ = 0.;
-    unsigned playbackStep_ = 0;
   };
 }

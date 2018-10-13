@@ -2,29 +2,29 @@
  *
  * \author Stéphane Caron
  *
- * This file is part of lipm_walking_controller.
+ * This file is part of capture_walking_controller.
  *
- * lipm_walking_controller is free software: you can redistribute it and/or
+ * capture_walking_controller is free software: you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public License as
  * published by the Free Software Foundation, either version 3 of the License,
  * or (at your option) any later version.
  *
- * lipm_walking_controller is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * capture_walking_controller is distributed in the hope that it will be
+ * useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser
  * General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public License
- * along with lipm_walking_controller. If not, see
+ * along with capture_walking_controller. If not, see
  * <http://www.gnu.org/licenses/>.
  */
 
 #include <mc_rbdyn/rpy_utils.h>
 
-#include <lipm_walking/Controller.h>
-#include <lipm_walking/utils/clamp.h>
+#include <capture_walking/Controller.h>
+#include <capture_walking/utils/clamp.h>
 
-namespace lipm_walking
+namespace capture_walking
 {
   Controller::Controller(std::shared_ptr<mc_rbdyn::RobotModule> robotModule, double dt, const mc_rtc::Configuration & config)
     : mc_control::fsm::Controller(robotModule, dt, config),
@@ -76,6 +76,10 @@ namespace lipm_walking
     logger().addLogEntry("controlRobot_comd_norm", [this]() { return controlComd_.norm(); });
     logger().addLogEntry("controlRobot_dcm", [this]() -> Eigen::Vector3d { return controlCom_ + controlComd_ / pendulum_.omega(); });
     logger().addLogEntry("controlRobot_posW", [this]() { return controlRobot().posW(); });
+    logger().addLogEntry("cps_desired_step_time", [this]() { return cps.desiredStepTime(); });
+    logger().addLogEntry("cps_init_contact", [this]() { return cps.initContact().p(); });
+    logger().addLogEntry("cps_solution_step_time", [this]() { return cps.solution().stepTime(); });
+    logger().addLogEntry("cps_target_cop", [this]() { return cps.targetCoP(); });
     logger().addLogEntry("error_com", [this]() -> Eigen::Vector3d { return controlCom_ - realCom_; });
     logger().addLogEntry("error_comd", [this]() -> Eigen::Vector3d { return controlComd_ - realComd_; });
     logger().addLogEntry("error_dcm", [this]() -> Eigen::Vector3d { return (controlCom_ - realCom_) + (controlComd_ - realComd_) / pendulum_.omega(); });
@@ -150,40 +154,79 @@ namespace lipm_walking
         Label("Mass [kg]",
           [this]() { return std::round(robotMass_ * 100.) / 100.; }));
       gui_->addElement(
-        {"Walking", "HMPC"},
+        {"Walking", "WPG"},
+        ComboInput(
+          "Method",
+          {"CaptureProblem", "HorizontalMPC"},
+          [this]()
+          {
+            switch (wpg)
+            {
+              case WalkingPatternGeneration::CaptureProblem:
+                return "CaptureProblem";
+              case WalkingPatternGeneration::HorizontalMPC:
+                break;
+            }
+            return "HorizontalMPC";
+          },
+          [this](const std::string & label)
+          {
+            if (label == "CaptureProblem")
+            {
+              wpg = WalkingPatternGeneration::CaptureProblem;
+            }
+            else // (label == "HorizontalMPC")
+            {
+              wpg = WalkingPatternGeneration::HorizontalMPC;
+            }
+          }),
         NumberInput(
-          "Jerk weight",
-          [this]() { return hmpc.jerkWeight; },
-          [this](double weight) { hmpc.jerkWeight = weight; }),
+            "Preview update period [s]",
+            [this]() { return previewUpdatePeriod; },
+            [this](double period) { previewUpdatePeriod = clamp(period, 0., 1.); }),
         ArrayInput(
-          "Velocity weights", {"vx", "vy"},
-          [this]() { return hmpc.velWeights; },
-          [this](const Eigen::Vector2d & weights) { hmpc.velWeights = weights; }),
-        NumberInput(
-          "ZMP weight",
-          [this]() { return hmpc.zmpWeight; },
-          [this](double weight) { hmpc.zmpWeight = weight; }));
+          "Capture CoP offset", {"x", "y"},
+          [this]() { return cps.ankleToTargetCoP; },
+          [this](const Eigen::Vector2d & cop) { cps.ankleToTargetCoP = cop; }),
+        ArrayInput(
+          "Horizontal MPC weights", {"jerk", "vel_x", "vel_y", "zmp"},
+          [this]()
+          {
+            Eigen::VectorXd weights(4);
+            weights[0] = hmpc.jerkWeight;
+            weights[1] = hmpc.velWeights.x();
+            weights[2] = hmpc.velWeights.y();
+            weights[3] = hmpc.zmpWeight;
+            return weights;
+          },
+          [this](const Eigen::VectorXd & weights)
+          {
+            hmpc.jerkWeight = weights[0];
+            hmpc.velWeights.x() = weights[1];
+            hmpc.velWeights.y() = weights[2];
+            hmpc.zmpWeight = weights[3];
+          }));
       gui_->addElement(
         {"Walking", "Plan"},
         Label(
           "Name",
           [this]() { return plan.name; }),
         NumberInput(
-          "CoM height",
+          "CoM height [m]",
           [this]() { return plan.comHeight(); },
           [this](double height) { plan.comHeight(height); }),
         NumberInput(
-          "Initial DSP duration [s]",
-          [this]() { return plan.initDSPDuration(); },
-          [this](double duration) { plan.initDSPDuration(duration); }),
+          "DSP duration [s]",
+          [this]() { return plan.doubleSupportDuration(); },
+          [this](double duration) { plan.doubleSupportDuration(duration); }),
         NumberInput(
           "SSP duration [s]",
           [this]() { return plan.singleSupportDuration(); },
           [this](double duration) { plan.singleSupportDuration(duration); }),
         NumberInput(
-          "DSP duration [s]",
-          [this]() { return plan.doubleSupportDuration(); },
-          [this](double duration) { plan.doubleSupportDuration(duration); }),
+          "Initial DSP duration [s]",
+          [this]() { return plan.initDSPDuration(); },
+          [this](double duration) { plan.initDSPDuration(duration); }),
         NumberInput(
           "Final DSP duration [s]",
           [this]() { return plan.finalDSPDuration(); },
@@ -211,7 +254,7 @@ namespace lipm_walking
       stabilizer_.addGUIElements(gui_);
     }
 
-    LOG_SUCCESS("LIPMWalking controller init done " << this)
+    LOG_SUCCESS("CaptureWalking controller init done " << this)
   }
 
   void Controller::updateRobotMass(double mass)

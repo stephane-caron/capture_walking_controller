@@ -27,14 +27,14 @@
 #include <mc_tasks/OrientationTask.h>
 #include <mc_tasks/PostureTask.h>
 
-#include <lipm_walking/Pendulum.h>
-#include <lipm_walking/Contact.h>
-#include <lipm_walking/Sole.h>
-#include <lipm_walking/defs.h>
-#include <lipm_walking/utils/Integrator.h>
-#include <lipm_walking/utils/rotations.h>
+#include <capture_walking/Pendulum.h>
+#include <capture_walking/Contact.h>
+#include <capture_walking/Sole.h>
+#include <capture_walking/defs.h>
+#include <capture_walking/utils/Integrator.h>
+#include <capture_walking/utils/rotations.h>
 
-namespace lipm_walking
+namespace capture_walking
 {
   /** Walking stabilization based on linear inverted pendulum tracking.
    *
