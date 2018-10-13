@@ -28,6 +28,8 @@ namespace capture_walking
   namespace
   {
     constexpr double COM_STIFFNESS = 5.; // standing has CoM set-point task
+    constexpr double MAX_CPS_FINAL_DSP_DURATION = 0.3; // [s]
+    constexpr double MAX_CPS_INIT_DSP_DURATION = 0.3; // [s]
   }
 
   void states::Standing::start()
@@ -90,6 +92,19 @@ namespace capture_walking
               {
                 LOG_ERROR("No footstep in contact plan");
                 return;
+              }
+              if (ctl.wpg == WalkingPatternGeneration::CaptureProblem)
+              {
+                if (ctl.plan.initDSPDuration() > MAX_CPS_INIT_DSP_DURATION)
+                {
+                  LOG_WARNING("Initial DSP duration cut to " << MAX_CPS_INIT_DSP_DURATION << " [s] for CPS");
+                  ctl.plan.initDSPDuration(MAX_CPS_INIT_DSP_DURATION);
+                }
+                if (ctl.plan.finalDSPDuration() > MAX_CPS_FINAL_DSP_DURATION)
+                {
+                  LOG_WARNING("Final DSP duration cut to " << MAX_CPS_FINAL_DSP_DURATION << " [s] for CPS");
+                  ctl.plan.finalDSPDuration(MAX_CPS_FINAL_DSP_DURATION);
+                }
               }
               startWalking_ = true;
               gui()->addElement(
