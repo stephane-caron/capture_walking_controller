@@ -66,7 +66,7 @@
   "StepByStep": false,
 
   // Where to look for state libraries
-  "StatesLibraries": ["@MC_RTC_LIBDIR@/mc_controller/lipm_walking_controller/states"],
+  "StatesLibraries": ["@MC_RTC_LIBDIR@/mc_controller/capture_walking_controller/states"],
 
   // Where to look for state files
   "StatesFiles": [],

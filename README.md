@@ -34,7 +34,7 @@ redundant with *eigen-qld* and will be removed in a future update.
 
 ### Building from source on Linux
 
-Link `lipm_walking_controller` from the source folder of your catkin workspace,
+Link `capture_walking_controller` from the source folder of your catkin workspace,
 then follow the standard catkin workflow:
 ```sh
 catkin_make -DCMAKE_BUILD_TYPE=RelWithDebInfo && catkin_make install
@@ -44,11 +44,11 @@ catkin_make -DCMAKE_BUILD_TYPE=RelWithDebInfo && catkin_make install
 
 First, launch RViz by:
 ```sh
-roslaunch lipm_walking_controller display.launch
+roslaunch capture_walking_controller display.launch
 ```
 Then, run your mc\_rtc interface on the main confuguration file:
 ```sh
-<mc_rtc_interface> lipm_walking_controller/etc/mc_rtc.conf
+<mc_rtc_interface> capture_walking_controller/etc/mc_rtc.conf
 ```
 where ``<mc_rtc_interface>`` is for instance ``mc_vrep`` or ``MCControlTCP``.
 
