@@ -34,23 +34,33 @@
 #include <mc_rtc/logging.h>
 #include <mc_rtc/ros.h>
 
-#include <lipm_walking/Contact.h>
-#include <lipm_walking/FloatingBaseObserver.h>
-#include <lipm_walking/FootstepPlan.h>
-#include <lipm_walking/HorizontalMPCProblem.h>
-#include <lipm_walking/HorizontalMPCSolution.h>
-#include <lipm_walking/Pendulum.h>
-#include <lipm_walking/PendulumObserver.h>
-#include <lipm_walking/Sole.h>
-#include <lipm_walking/Stabilizer.h>
-#include <lipm_walking/defs.h>
-#include <lipm_walking/utils/VelocityFilter.h>
-#include <lipm_walking/utils/clamp.h>
-#include <lipm_walking/utils/rotations.h>
+#include <capture_walking/CaptureProblem.h>
+#include <capture_walking/Contact.h>
+#include <capture_walking/FloatingBaseObserver.h>
+#include <capture_walking/FootstepPlan.h>
+#include <capture_walking/HorizontalMPCProblem.h>
+#include <capture_walking/Pendulum.h>
+#include <capture_walking/PendulumObserver.h>
+#include <capture_walking/Preview.h>
+#include <capture_walking/Sole.h>
+#include <capture_walking/Stabilizer.h>
+#include <capture_walking/defs.h>
+#include <capture_walking/utils/VelocityFilter.h>
+#include <capture_walking/utils/clamp.h>
+#include <capture_walking/utils/rotations.h>
 
-namespace lipm_walking
+namespace capture_walking
 {
-  /** Walking controller.
+  /** Walking pattern generation methods.
+   *
+   */
+  enum class WalkingPatternGeneration
+  {
+    CaptureProblem,
+    HorizontalMPC
+  };
+
+  /** Capturability-based walking controller.
    *
    */
   struct MC_CONTROL_DLLAPI Controller : public mc_control::fsm::Controller
@@ -147,10 +157,15 @@ namespace lipm_walking
       return stabilizer_;
     }
 
+    /** Update capturability preview.
+     *
+     */
+    bool updatePreviewCPS();
+
     /** Update horizontal MPC preview.
      *
      */
-    bool updatePreview();
+    bool updatePreviewHMPC();
 
     /** Get fraction of total weight that should be sustained by the left foot.
      *
@@ -177,14 +192,6 @@ namespace lipm_walking
       leftFootPressure = std::max(0., leftFootPressure);
       rightFootPressure = std::max(0., rightFootPressure);
       return leftFootPressure / (leftFootPressure + rightFootPressure);
-    }
-
-    /** Get desired CoM height.
-     *
-     */
-    inline double comHeight()
-    {
-      return plan.comHeight();
     }
 
     /** Get next double support duration.
@@ -292,12 +299,16 @@ namespace lipm_walking
     void stopLogSegment();
 
   public: /* visible to FSM states */
+    CaptureProblem cps;
     FootstepPlan plan;
     HorizontalMPCProblem hmpc;
     Sole sole;
+    WalkingPatternGeneration wpg = WalkingPatternGeneration::CaptureProblem;
     bool emergencyStop = false;
     bool pauseWalking = false;
-    std::shared_ptr<HorizontalMPCSolution> preview;
+    bool skipPlanPauses = false;
+    double previewUpdatePeriod = HorizontalMPC::SAMPLING_PERIOD;
+    std::shared_ptr<Preview> preview;
     std::string curFootstepPlan;
     std::vector<std::vector<double>> halfSitPose;
 
@@ -320,6 +331,8 @@ namespace lipm_walking
     mc_rtc::Configuration hmpcConfig_;
     mc_rtc::Configuration plans_;
     std::string segmentName_ = "";
+    unsigned nbCPSFailures_ = 0;
+    unsigned nbCPSUpdates_ = 0;
     unsigned nbHMPCFailures_ = 0;
     unsigned nbHMPCUpdates_ = 0;
     unsigned nbLogSegments_ = 100;

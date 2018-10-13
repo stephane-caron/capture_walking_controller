@@ -170,28 +170,6 @@ namespace capture_walking
       initDSPDuration_ = clamp(duration, 0., 1.6);
     }
 
-    /** Get swing foot landing ratio.
-     *
-     */
-    inline double landingRatio() const
-    {
-      if (supportContact_.swingConfig.has("landing_ratio"))
-      {
-        return supportContact_.swingConfig("landing_ratio");
-      }
-      return landingRatio_;
-    }
-
-    /** Set swing foot landing ratio.
-     *
-     * \param ratio New ratio.
-     *
-     */
-    inline void landingRatio(double ratio)
-    {
-      landingRatio_ = clamp(ratio, 0., 0.5);
-    }
-
     /** Get swing foot landing pitch angle.
      *
      */
@@ -212,6 +190,28 @@ namespace capture_walking
       constexpr double MIN_LANDING_PITCH = -1.;
       constexpr double MAX_LANDING_PITCH = 1.;
       landingPitch_ = clamp(pitch, MIN_LANDING_PITCH, MAX_LANDING_PITCH);
+    }
+
+    /** Get swing foot landing ratio.
+     *
+     */
+    inline double landingRatio() const
+    {
+      if (supportContact_.swingConfig.has("landing_ratio"))
+      {
+        return supportContact_.swingConfig("landing_ratio");
+      }
+      return landingRatio_;
+    }
+
+    /** Set swing foot landing ratio.
+     *
+     * \param ratio New ratio.
+     *
+     */
+    inline void landingRatio(double ratio)
+    {
+      landingRatio_ = clamp(ratio, 0., 0.5);
     }
 
     /** Next contact in plan.
