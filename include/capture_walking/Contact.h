@@ -2,20 +2,20 @@
  *
  * \author Stéphane Caron
  *
- * This file is part of lipm_walking_controller.
+ * This file is part of capture_walking_controller.
  *
- * lipm_walking_controller is free software: you can redistribute it and/or
+ * capture_walking_controller is free software: you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public License as
  * published by the Free Software Foundation, either version 3 of the License,
  * or (at your option) any later version.
  *
- * lipm_walking_controller is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * capture_walking_controller is distributed in the hope that it will be
+ * useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser
  * General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public License
- * along with lipm_walking_controller. If not, see
+ * along with capture_walking_controller. If not, see
  * <http://www.gnu.org/licenses/>.
  */
 
@@ -25,9 +25,9 @@
 
 #include <mc_tasks/CoPTask.h>
 
-#include <lipm_walking/defs.h>
+#include <capture_walking/defs.h>
 
-namespace lipm_walking
+namespace capture_walking
 {
   /** All four combinations of two foot contacts.
    *
@@ -332,11 +332,11 @@ namespace lipm_walking
 namespace mc_rtc
 {
   template<>
-  struct ConfigurationLoader<lipm_walking::Contact>
+  struct ConfigurationLoader<capture_walking::Contact>
   {
-    static lipm_walking::Contact load(const mc_rtc::Configuration & config)
+    static capture_walking::Contact load(const mc_rtc::Configuration & config)
     {
-      lipm_walking::Contact contact;
+      capture_walking::Contact contact;
       contact.pose = config("pose");
       config("half_length", contact.halfLength);
       config("half_width", contact.halfWidth);
@@ -353,7 +353,7 @@ namespace mc_rtc
       return contact;
     }
 
-    static mc_rtc::Configuration save(const lipm_walking::Contact & contact)
+    static mc_rtc::Configuration save(const capture_walking::Contact & contact)
     {
       mc_rtc::Configuration config;
       config.add("half_length", contact.halfLength);
