@@ -306,7 +306,6 @@ namespace capture_walking
     WalkingPatternGeneration wpg = WalkingPatternGeneration::CaptureProblem;
     bool emergencyStop = false;
     bool pauseWalking = false;
-    bool skipPlanPauses = false;
     double previewUpdatePeriod = HorizontalMPC::SAMPLING_PERIOD;
     std::shared_ptr<Preview> preview;
     std::string curFootstepPlan;

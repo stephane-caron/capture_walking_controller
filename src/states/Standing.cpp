@@ -2,28 +2,28 @@
  *
  * \author Stéphane Caron
  *
- * This file is part of lipm_walking_controller.
+ * This file is part of capture_walking_controller.
  *
- * lipm_walking_controller is free software: you can redistribute it and/or
+ * capture_walking_controller is free software: you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public License as
  * published by the Free Software Foundation, either version 3 of the License,
  * or (at your option) any later version.
  *
- * lipm_walking_controller is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * capture_walking_controller is distributed in the hope that it will be
+ * useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser
  * General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public License
- * along with lipm_walking_controller. If not, see
+ * along with capture_walking_controller. If not, see
  * <http://www.gnu.org/licenses/>.
  */
 
-#include <lipm_walking/utils/clamp.h>
+#include <capture_walking/utils/clamp.h>
 
 #include "Standing.h"
 
-namespace lipm_walking
+namespace capture_walking
 {
   namespace
   {
@@ -83,7 +83,29 @@ namespace lipm_walking
           {"Walking", "Controller"},
           Button(
             (supportContact.id == 0) ? "Start walking" : "Resume walking",
-            [this]() { startWalking(); }));
+            [this]()
+            {
+              auto & ctl = controller();
+              if (ctl.isLastSSP())
+              {
+                LOG_ERROR("No footstep in contact plan");
+                return;
+              }
+              startWalking_ = true;
+              gui()->addElement(
+                  {"Walking", "Controller"},
+                  mc_rtc::gui::Button(
+                      "Pause walking",
+                      [&ctl]()
+                      {
+                        if (ctl.pauseWalking)
+                        {
+                          return;
+                        }
+                        ctl.pauseWalking = true;
+                        ctl.gui()->removeElement({"Walking", "Controller"}, "Pause walking");
+                      }));
+            }));
       }
       gui()->addElement(
         {"Walking", "Standing"},
@@ -184,11 +206,9 @@ namespace lipm_walking
       }
     }
 
-    auto & pendulum = ctl.pendulum();
-
-    Eigen::Vector3d comTarget = copTarget_ + Eigen::Vector3d{0., 0., ctl.comHeight()};
-    const Eigen::Vector3d & com_i = pendulum.com();
-    const Eigen::Vector3d & comd_i = pendulum.comd();
+    Eigen::Vector3d comTarget = copTarget_ + Eigen::Vector3d{0., 0., ctl.plan.comHeight()};
+    const Eigen::Vector3d & com_i = pendulum().com();
+    const Eigen::Vector3d & comd_i = pendulum().comd();
     const Eigen::Vector3d & cop_f = copTarget_;
 
     double K = COM_STIFFNESS;
@@ -198,7 +218,7 @@ namespace lipm_walking
     double lambda = n.dot(comdd - world::gravity) / n.dot(com_i - cop_f);
     Eigen::Vector3d zmp = com_i + (world::gravity - comdd) / lambda;
 
-    pendulum.integrateIPM(zmp, lambda, ctl.timeStep);
+    pendulum().integrateIPM(zmp, lambda, ctl.timeStep);
     ctl.leftFootRatio(leftFootRatio_);
     ctl.stabilizer().run();
   }
@@ -282,51 +302,36 @@ namespace lipm_walking
   bool states::Standing::checkTransitions()
   {
     auto & ctl = controller();
-
-    if (isMakingFootContact_)
+    if (!startWalking_ || isMakingFootContact_)
     {
       return false;
     }
-    if (!startWalking_)
+    if (ctl.wpg == WalkingPatternGeneration::CaptureProblem)
     {
-      return false;
+      ctl.cps.contacts(ctl.supportContact(), ctl.targetContact());
+      ctl.cps.stepTime(ctl.plan.initDSPDuration());
+      if (ctl.updatePreviewCPS())
+      {
+        ctl.nextDoubleSupportDuration(ctl.plan.initDSPDuration());
+        ctl.startLogSegment(ctl.plan.name);
+        output("DoubleSupport");
+        return true;
+      }
     }
-
-    ctl.hmpc.contacts(ctl.supportContact(), ctl.targetContact(), ctl.nextContact());
-    ctl.hmpc.phaseDurations(0., ctl.plan.initDSPDuration(), ctl.singleSupportDuration());
-    if (ctl.updatePreview())
+    else // (ctl.wpg == WalkingPatternGeneration::HorizontalMPC)
     {
-      ctl.nextDoubleSupportDuration(ctl.plan.initDSPDuration());
-      ctl.startLogSegment(ctl.plan.name);
-      output("DoubleSupport");
-      return true;
+      ctl.hmpc.contacts(ctl.supportContact(), ctl.targetContact(), ctl.nextContact());
+      ctl.hmpc.phaseDurations(0., ctl.plan.initDSPDuration(), ctl.singleSupportDuration());
+      if (ctl.updatePreviewHMPC())
+      {
+        ctl.nextDoubleSupportDuration(ctl.plan.initDSPDuration());
+        ctl.startLogSegment(ctl.plan.name);
+        output("DoubleSupport");
+        return true;
+      }
     }
     return false;
   }
-
-  void states::Standing::startWalking()
-  {
-    auto & ctl = controller();
-    if (ctl.isLastSSP())
-    {
-      LOG_ERROR("No footstep in contact plan");
-      return;
-    }
-    startWalking_ = true;
-    gui()->addElement(
-        {"Walking", "Controller"},
-        mc_rtc::gui::Button(
-            "Pause walking",
-            [&ctl]()
-            {
-              if (ctl.pauseWalking)
-              {
-                return;
-              }
-              ctl.pauseWalking = true;
-              ctl.gui()->removeElement({"Walking", "Controller"}, "Pause walking");
-            }));
-  }
 }
 
-EXPORT_SINGLE_STATE("Standing", lipm_walking::states::Standing)
+EXPORT_SINGLE_STATE("Standing", capture_walking::states::Standing)

@@ -2,26 +2,26 @@
  *
  * \author Stéphane Caron
  *
- * This file is part of lipm_walking_controller.
+ * This file is part of capture_walking_controller.
  *
- * lipm_walking_controller is free software: you can redistribute it and/or
+ * capture_walking_controller is free software: you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public License as
  * published by the Free Software Foundation, either version 3 of the License,
  * or (at your option) any later version.
  *
- * lipm_walking_controller is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * capture_walking_controller is distributed in the hope that it will be
+ * useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser
  * General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public License
- * along with lipm_walking_controller. If not, see
+ * along with capture_walking_controller. If not, see
  * <http://www.gnu.org/licenses/>.
  */
 
 #include "DoubleSupport.h"
 
-namespace lipm_walking
+namespace capture_walking
 {
   void states::DoubleSupport::start()
   {
@@ -32,7 +32,7 @@ namespace lipm_walking
     remTime_ = duration_;
     stateTime_ = 0.;
     stopDuringThisDSP_ = ctl.pauseWalking || ctl.prevContact().pauseAfterSwing;
-    timeSinceLastPreviewUpdate_ = 2 * HorizontalMPC::SAMPLING_PERIOD; // update at transition
+    timeSinceLastPreviewUpdate_ = 2 * ctl.previewUpdatePeriod; // update at transition
 
     const std::string & targetSurfaceName = ctl.targetContact().surfaceName;
     auto actualTargetPose = ctl.controlRobot().surfacePose(targetSurfaceName);
@@ -97,8 +97,8 @@ namespace lipm_walking
     auto & ctl = controller();
     double dt = ctl.timeStep;
 
-    if (remTime_ > 0 && timeSinceLastPreviewUpdate_ > HorizontalMPC::SAMPLING_PERIOD &&
-        !(stopDuringThisDSP_ && remTime_ < 1 * HorizontalMPC::SAMPLING_PERIOD))
+    if (remTime_ > 0 && timeSinceLastPreviewUpdate_ >  ctl.previewUpdatePeriod &&
+        !(stopDuringThisDSP_ && remTime_ < ctl.previewUpdatePeriod))
     {
       updatePreview();
     }
@@ -107,9 +107,11 @@ namespace lipm_walking
     ctl.leftFootRatio(x * initLeftFootRatio_ + (1. - x) * targetLeftFootRatio_);
 
     ctl.preview->integrate(pendulum(), dt);
-    pendulum().completeIPM(ctl.prevContact());
-    double height = ctl.comHeight();
-    pendulum().resetCoMHeight(height, ctl.prevContact());
+    if (ctl.wpg == WalkingPatternGeneration::HorizontalMPC)
+    {
+      pendulum().completeIPM(ctl.prevContact());
+      pendulum().resetCoMHeight(ctl.plan.comHeight(), ctl.prevContact());
+    }
     stabilizer().run();
 
     remTime_ -= dt;
@@ -139,6 +141,31 @@ namespace lipm_walking
 
   void states::DoubleSupport::updatePreview()
   {
+    switch (controller().wpg)
+    {
+      case WalkingPatternGeneration::CaptureProblem:
+        updatePreviewCPS();
+        break;
+      case WalkingPatternGeneration::HorizontalMPC:
+        updatePreviewHMPC();
+        break;
+    }
+  }
+
+  void states::DoubleSupport::updatePreviewCPS()
+  {
+    auto & cps = controller().cps;
+    auto & ctl = controller();
+    cps.contacts(ctl.prevContact(), ctl.supportContact());
+    cps.stepTime(remTime_);
+    if (ctl.updatePreviewCPS())
+    {
+      timeSinceLastPreviewUpdate_ = 0.;
+    }
+  }
+
+  void states::DoubleSupport::updatePreviewHMPC()
+  {
     auto & ctl = controller();
     ctl.hmpc.contacts(ctl.prevContact(), ctl.supportContact(), ctl.targetContact());
     if (stopDuringThisDSP_)
@@ -149,7 +176,7 @@ namespace lipm_walking
     {
       ctl.hmpc.phaseDurations(0., remTime_, ctl.singleSupportDuration());
     }
-    if (ctl.updatePreview())
+    if (ctl.updatePreviewHMPC())
     {
       timeSinceLastPreviewUpdate_ = 0.;
     }
@@ -160,4 +187,4 @@ namespace lipm_walking
   }
 }
 
-EXPORT_SINGLE_STATE("DoubleSupport", lipm_walking::states::DoubleSupport)
+EXPORT_SINGLE_STATE("DoubleSupport", capture_walking::states::DoubleSupport)

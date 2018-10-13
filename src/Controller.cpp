@@ -413,23 +413,6 @@ namespace capture_walking
     LOG_INFO("Loaded footstep plan \"" << name << "\"");
   }
 
-  bool Controller::updatePreview()
-  {
-    hmpc.initState(pendulum());
-    hmpc.comHeight(plan.comHeight());
-    if (hmpc.solve())
-    {
-      preview.reset(new HorizontalMPCSolution(hmpc.solution()));
-      nbHMPCUpdates_++;
-      return true;
-    }
-    else
-    {
-      nbHMPCFailures_++;
-      return false;
-    }
-  }
-
   void Controller::startLogSegment(const std::string & label)
   {
     if (segmentName_.length() > 0)
@@ -445,6 +428,40 @@ namespace capture_walking
     logger().removeLogEntry(segmentName_);
     segmentName_ = "";
   }
+
+  bool Controller::updatePreviewCPS()
+  {
+    cps.initState(pendulum());
+    cps.targetHeight(plan.comHeight());
+    if (cps.solve())
+    {
+      preview.reset(new CaptureSolution(cps.solution()));
+      nbCPSUpdates_++;
+      return true;
+    }
+    else
+    {
+      nbCPSFailures_++;
+      return false;
+    }
+  }
+
+  bool Controller::updatePreviewHMPC()
+  {
+    hmpc.initState(pendulum());
+    hmpc.comHeight(plan.comHeight());
+    if (hmpc.solve())
+    {
+      preview.reset(new HorizontalMPCSolution(hmpc.solution()));
+      nbHMPCUpdates_++;
+      return true;
+    }
+    else
+    {
+      nbHMPCFailures_++;
+      return false;
+    }
+  }
 }
 
-CONTROLLER_CONSTRUCTOR("LIPMWalking", lipm_walking::Controller)
+CONTROLLER_CONSTRUCTOR("CaptureWalking", capture_walking::Controller)

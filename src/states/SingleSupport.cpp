@@ -2,26 +2,26 @@
  *
  * \author Stéphane Caron
  *
- * This file is part of lipm_walking_controller.
+ * This file is part of capture_walking_controller.
  *
- * lipm_walking_controller is free software: you can redistribute it and/or
+ * capture_walking_controller is free software: you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public License as
  * published by the Free Software Foundation, either version 3 of the License,
  * or (at your option) any later version.
  *
- * lipm_walking_controller is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * capture_walking_controller is distributed in the hope that it will be
+ * useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser
  * General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public License
- * along with lipm_walking_controller. If not, see
+ * along with capture_walking_controller. If not, see
  * <http://www.gnu.org/licenses/>.
  */
 
 #include "SingleSupport.h"
 
-namespace lipm_walking
+namespace capture_walking
 {
   void states::SingleSupport::start()
   {
@@ -108,21 +108,23 @@ namespace lipm_walking
     double dt = ctl.timeStep;
 
     updateSwingFoot();
-    if (timeSinceLastPreviewUpdate_ > HorizontalMPC::SAMPLING_PERIOD)
+    if (timeSinceLastPreviewUpdate_ > ctl.previewUpdatePeriod)
     {
       updatePreview();
     }
 
     ctl.preview->integrate(pendulum(), dt);
-    if (hasUpdatedMPCOnce_)
+    if (ctl.wpg == WalkingPatternGeneration::HorizontalMPC)
     {
-      double height = ctl.comHeight();
-      pendulum().resetCoMHeight(height, ctl.supportContact());
-      pendulum().completeIPM(ctl.supportContact());
-    }
-    else // still in DSP of preview
-    {
-      pendulum().completeIPM(ctl.prevContact());
+      if (hasUpdatedMPCOnce_)
+      {
+        pendulum().resetCoMHeight(ctl.plan.comHeight(), ctl.supportContact());
+        pendulum().completeIPM(ctl.supportContact());
+      }
+      else // still in DSP of preview
+      {
+        pendulum().completeIPM(ctl.prevContact());
+      }
     }
     stabilizer().run();
 
@@ -159,6 +161,31 @@ namespace lipm_walking
 
   void states::SingleSupport::updatePreview()
   {
+    switch (controller().wpg)
+    {
+      case WalkingPatternGeneration::CaptureProblem:
+        updatePreviewCPS();
+        break;
+      case WalkingPatternGeneration::HorizontalMPC:
+        updatePreviewHMPC();
+        break;
+    }
+  }
+
+  void states::SingleSupport::updatePreviewCPS()
+  {
+    auto & cps = controller().cps;
+    auto & ctl = controller();
+    cps.contacts(ctl.supportContact(), ctl.targetContact());
+    cps.stepTime(remTime_ + ctl.doubleSupportDuration());
+    if (ctl.updatePreviewCPS())
+    {
+      timeSinceLastPreviewUpdate_ = 0.;
+    }
+  }
+
+  void states::SingleSupport::updatePreviewHMPC()
+  {
     auto & ctl = controller();
     ctl.hmpc.contacts(ctl.supportContact(), ctl.targetContact(), ctl.nextContact());
     if (ctl.isLastSSP() || ctl.pauseWalking || ctl.prevContact().pauseAfterSwing)
@@ -170,7 +197,7 @@ namespace lipm_walking
     {
       ctl.hmpc.phaseDurations(remTime_, ctl.doubleSupportDuration(), ctl.singleSupportDuration());
     }
-    if (ctl.updatePreview())
+    if (ctl.updatePreviewHMPC())
     {
       timeSinceLastPreviewUpdate_ = 0.;
       hasUpdatedMPCOnce_ = true;
@@ -182,4 +209,4 @@ namespace lipm_walking
   }
 }
 
-EXPORT_SINGLE_STATE("SingleSupport", lipm_walking::states::SingleSupport)
+EXPORT_SINGLE_STATE("SingleSupport", capture_walking::states::SingleSupport)

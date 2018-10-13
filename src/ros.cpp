@@ -2,29 +2,29 @@
  *
  * \author Stéphane Caron
  *
- * This file is part of lipm_walking_controller.
+ * This file is part of capture_walking_controller.
  *
- * lipm_walking_controller is free software: you can redistribute it and/or
+ * capture_walking_controller is free software: you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public License as
  * published by the Free Software Foundation, either version 3 of the License,
  * or (at your option) any later version.
  *
- * lipm_walking_controller is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * capture_walking_controller is distributed in the hope that it will be
+ * useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser
  * General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public License
- * along with lipm_walking_controller. If not, see
+ * along with capture_walking_controller. If not, see
  * <http://www.gnu.org/licenses/>.
  */
 
 #include <ros/ros.h>
 
-#include <lipm_walking/Controller.h>
-#include <lipm_walking/utils/ros.h>
+#include <capture_walking/Controller.h>
+#include <capture_walking/utils/ros.h>
 
-namespace lipm_walking
+namespace capture_walking
 {
   namespace
   {
@@ -246,11 +246,11 @@ namespace lipm_walking
   {
     const auto & nodeHandle = mc_rtc::ROSBridge::get_node_handle();
 
-    pendulumObserverPublisher_ = nodeHandle->advertise<visualization_msgs::MarkerArray>("/lipm_walking/PendulumObserver", 1);
-    extraPublisher_ = nodeHandle->advertise<visualization_msgs::MarkerArray>("/lipm_walking/ExtraMarkers", 1);
-    footstepPublisher_ = nodeHandle->advertise<visualization_msgs::MarkerArray>("/lipm_walking/FootstepMarkers", 1);
-    pendulumPublisher_ = nodeHandle->advertise<visualization_msgs::MarkerArray>("/lipm_walking/PendulumReference", 1);
-    sensorPublisher_ = nodeHandle->advertise<visualization_msgs::MarkerArray>("/lipm_walking/FootForceSensors", 1);
+    pendulumObserverPublisher_ = nodeHandle->advertise<visualization_msgs::MarkerArray>("/capture_walking/PendulumObserver", 1);
+    extraPublisher_ = nodeHandle->advertise<visualization_msgs::MarkerArray>("/capture_walking/ExtraMarkers", 1);
+    footstepPublisher_ = nodeHandle->advertise<visualization_msgs::MarkerArray>("/capture_walking/FootstepMarkers", 1);
+    pendulumPublisher_ = nodeHandle->advertise<visualization_msgs::MarkerArray>("/capture_walking/PendulumReference", 1);
+    sensorPublisher_ = nodeHandle->advertise<visualization_msgs::MarkerArray>("/capture_walking/FootForceSensors", 1);
     tfBroadcaster_ = std::unique_ptr<tf2_ros::TransformBroadcaster>(new tf2_ros::TransformBroadcaster());
 
     ros::Rate rate(200);
