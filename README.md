@@ -21,6 +21,7 @@ Compilation requires:
 * [mc\_rbdyn\_urdf](https://github.com/jrl-umi3218/mc_rbdyn_urdf): robot model loader
 * [eigen-cddlib](https://github.com/vsamy/eigen-cddlib): polyhedron double description
 * [Copra](https://github.com/vsamy/Copra-deprecated): linear model predictive control
+* [CaptureProblemSolver](https://github.com/jrl-umi3218/CaptureProblemSolver): capturability optimization
 
 The following dependencies are not publicly released yet but available upon
 request to [Pierre Gergondet](mailto:pierre.gergondet@gmail.com):

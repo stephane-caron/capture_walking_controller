@@ -72,8 +72,6 @@ namespace capture_walking
      *
      * \param dt Duration.
      *
-     * \note This function only applies to one-step capture solutions.
-     *
      */
     void integrate(Pendulum & state, double dt) override;
 
