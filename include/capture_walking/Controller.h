@@ -308,7 +308,6 @@ namespace capture_walking
     bool pauseWalking = false;
     double previewUpdatePeriod = HorizontalMPC::SAMPLING_PERIOD;
     std::shared_ptr<Preview> preview;
-    std::string curFootstepPlan;
     std::vector<std::vector<double>> halfSitPose;
 
   private: /* hidden from FSM states */
