@@ -45,7 +45,7 @@
 #include <capture_walking/Sole.h>
 #include <capture_walking/Stabilizer.h>
 #include <capture_walking/defs.h>
-#include <capture_walking/utils/VelocityFilter.h>
+#include <capture_walking/utils/LowPassVelocityFilter.h>
 #include <capture_walking/utils/clamp.h>
 #include <capture_walking/utils/rotations.h>
 
@@ -315,10 +315,10 @@ namespace capture_walking
     Eigen::Vector3d controlComd_;
     Eigen::Vector3d realCom_;
     Eigen::Vector3d realComd_;
+    LowPassVelocityFilter<Eigen::Vector3d> comVelFilter_;
     Pendulum pendulum_;
     PendulumObserver pendulumObserver_;
     Stabilizer stabilizer_;
-    VelocityFilter<Eigen::Vector3d> comVelFilter_;
     bool isInTheAir_ = false;
     bool leftFootRatioJumped_ = false;
     double ctlTime_ = 0.;

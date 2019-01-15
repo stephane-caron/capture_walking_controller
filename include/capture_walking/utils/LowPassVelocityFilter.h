@@ -27,17 +27,31 @@ namespace capture_walking
    *
    */
   template <typename T>
-  struct VelocityFilter
+  struct LowPassVelocityFilter
   {
     /** Constructor.
      *
      * \param dt Sampling period.
      *
      */
-    VelocityFilter(double dt)
+    LowPassVelocityFilter(double dt)
       : dt_(dt)
     {
       reset(T::Zero());
+    }
+
+    /** Constructor with cutoff period.
+     *
+     * \param dt Sampling period.
+     *
+     * \param period Cutoff period.
+     *
+     */
+    LowPassVelocityFilter(double dt, double period)
+      : dt_(dt)
+    {
+      reset(T::Zero());
+      cutoffPeriod(period);
     }
 
     /** Reset position to an initial rest value.
