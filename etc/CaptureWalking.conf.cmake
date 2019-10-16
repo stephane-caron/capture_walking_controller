@@ -79,7 +79,21 @@
   "UseSandbox" : false,
 
   //
-  // HRP-4
+  // Configuration for baseline linear model predictive control
+  //
+
+  "hmpc":
+  {
+    "weights":
+    {
+      "jerk": 1.0,
+      "vel": [10.0, 100.0],
+      "zmp": 1000.0
+    }
+  },
+
+  //
+  // Sole dimensions for HRP-4
   //
 
   "sole":
