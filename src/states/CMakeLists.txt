@@ -1,4 +1,22 @@
-set(FSM_STATES_INSTALL_PREFIX "${MC_RTC_LIBDIR}/mc_controller/capture_walking_controller/states")
+# Copyright 2018-2019 CNRS-UM LIRMM
+#
+# This file is part of capture_walking_controller.
+#
+# capture_walking_controller is free software: you can redistribute it and/or
+# modify it under the terms of the GNU Lesser General Public License as
+# published by the Free Software Foundation, either version 3 of the License,
+# or (at your option) any later version.
+#
+# capture_walking_controller is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser
+# General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with capture_walking_controller. If not, see
+# <http://www.gnu.org/licenses/>.
+
+set(FSM_STATES_INSTALL_PREFIX "${MC_RTC_LIBDIR}/mc_controller/${PROJECT_NAME}/states")
 
 macro(add_fsm_state state_name state_SRC state_HDR)
   add_library(${state_name} SHARED  ${state_SRC} ${state_HDR})
@@ -10,8 +28,6 @@ macro(add_fsm_state state_name state_SRC state_HDR)
   install(TARGETS ${state_name} DESTINATION ${FSM_STATES_INSTALL_PREFIX})
   install(FILES ${state_HDR} DESTINATION ${CMAKE_INSTALL_PREFIX}/include/mc_control/fsm/states)
 endmacro()
-
-# install(DIRECTORY data DESTINATION ${FSM_STATES_INSTALL_PREFIX} FILES_MATCHING PATTERN "*.json")
 
 macro(add_fsm_state_simple state_name)
   add_fsm_state(${state_name} ${state_name}.cpp ${state_name}.h)

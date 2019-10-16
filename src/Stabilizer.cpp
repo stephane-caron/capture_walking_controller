@@ -260,8 +260,8 @@ namespace capture_walking
     comTask->setGains(comStiffness_, 2 * comStiffness_.cwiseSqrt());
     comTask->weight(comWeight_);
 
-    leftFootTask.reset(new mc_tasks::CoPTask("LeftFootCenter", robots, robotIndex));
-    rightFootTask.reset(new mc_tasks::CoPTask("RightFootCenter", robots, robotIndex));
+    leftFootTask.reset(new mc_tasks::force::CoPTask("LeftFootCenter", robots, robotIndex));
+    rightFootTask.reset(new mc_tasks::force::CoPTask("RightFootCenter", robots, robotIndex));
     leftFootTask->maxAngularVel({MAX_FDC_RX_VEL, MAX_FDC_RY_VEL, MAX_FDC_RZ_VEL});
     rightFootTask->maxAngularVel({MAX_FDC_RX_VEL, MAX_FDC_RY_VEL, MAX_FDC_RZ_VEL});
     setContact(leftFootTask, leftFootTask->surfacePose());
@@ -311,7 +311,7 @@ namespace capture_walking
     solver.removeTask(torsoTask);
   }
 
-  void Stabilizer::setContact(std::shared_ptr<mc_tasks::CoPTask> footTask, const Contact & contact)
+  void Stabilizer::setContact(std::shared_ptr<mc_tasks::force::CoPTask> footTask, const Contact & contact)
   {
     footTask->reset();
     footTask->admittance(contactAdmittance_);
@@ -332,14 +332,14 @@ namespace capture_walking
     }
   }
 
-  void Stabilizer::setSwingFoot(std::shared_ptr<mc_tasks::CoPTask> footTask)
+  void Stabilizer::setSwingFoot(std::shared_ptr<mc_tasks::force::CoPTask> footTask)
   {
     footTask->reset();
-    footTask->setCriticalGains(swingFootStiffness_);
+    footTask->stiffness(swingFootStiffness_); // sets damping as well
     footTask->weight(swingFootWeight_);
   }
 
-  bool Stabilizer::detectTouchdown(const std::shared_ptr<mc_tasks::CoPTask> footTask, const Contact & contact)
+  bool Stabilizer::detectTouchdown(const std::shared_ptr<mc_tasks::force::CoPTask> footTask, const Contact & contact)
   {
     const sva::PTransformd X_0_s = footTask->surfacePose();
     const sva::PTransformd & X_0_c = contact.pose;
@@ -351,7 +351,7 @@ namespace capture_walking
     return (xDist < 0.03 && yDist < 0.03 && zDist < 0.03 && pressure > 50.);
   }
 
-  void Stabilizer::seekTouchdown(std::shared_ptr<mc_tasks::CoPTask> footTask)
+  void Stabilizer::seekTouchdown(std::shared_ptr<mc_tasks::force::CoPTask> footTask)
   {
     constexpr double MAX_VEL = 0.01; // [m] / [s]
     constexpr double TOUCHDOWN_PRESSURE = 50.;  // [N]
@@ -593,7 +593,7 @@ namespace capture_walking
     rightFootTask->targetForce(w_r_rc.force());
   }
 
-  void Stabilizer::saturateWrench(const sva::ForceVecd & desiredWrench, std::shared_ptr<mc_tasks::CoPTask> & footTask)
+  void Stabilizer::saturateWrench(const sva::ForceVecd & desiredWrench, std::shared_ptr<mc_tasks::force::CoPTask> & footTask)
   {
     constexpr unsigned NB_CONS = 16;
     constexpr unsigned NB_VAR = 6;

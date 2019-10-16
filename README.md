@@ -15,12 +15,12 @@ Compilation requires:
 * [ROS](http://www.ros.org/) with a working [catkin workspace](http://wiki.ros.org/catkin/Tutorials/create_a_workspace)
 * [SpaceVecAlg](https://github.com/jrl-umi3218/SpaceVecAlg): spatial vector algebra
 * [RBDyn](https://github.com/jrl-umi3218/RBDyn/): rigid body dynamics
+* [eigen-lssol](https://gite.lirmm.fr/multi-contact/eigen-lssol): quadratic programming (if you have the LSSOL licence ask us this library)
 * [eigen-qld](https://github.com/jrl-umi3218/eigen-qld): quadratic programming
 * [sch-core](https://github.com/jrl-umi3218/sch-core): collision detection
 * [Tasks](https://github.com/jrl-umi3218/Tasks/): inverse kinematics
 * [mc\_rbdyn\_urdf](https://github.com/jrl-umi3218/mc_rbdyn_urdf): robot model loader
-* [eigen-cddlib](https://github.com/vsamy/eigen-cddlib): polyhedron double description
-* [Copra](https://github.com/vsamy/Copra-deprecated): linear model predictive control
+* [copra](https://github.com/vsamy/copra): linear model predictive control
 * [CaptureProblemSolver](https://github.com/jrl-umi3218/CaptureProblemSolver): capturability optimization
 
 The following dependencies are not publicly released yet but available upon
@@ -29,10 +29,6 @@ request to [Pierre Gergondet](mailto:pierre.gergondet@gmail.com):
 * [mc\_rtc](https://gite.lirmm.fr/multi-contact/mc_rtc): robot controller library (includes mc_control, mc_rbdyn, mc_solver and mc_tasks)
 * [mc\_rtc\_ros](https://gite.lirmm.fr/multi-contact/mc_rtc_ros): ROS tools for mc_rtc
 * [mc\_rtc\_ros\_data](https://gite.lirmm.fr/multi-contact/mc_rtc_ros_data): ROS environment and object descriptions for mc_rtc
-
-There is currently an additional dependency to the *eigen-lssol* library. It
-will be replaced by [eigen-qld](https://github.com/jrl-umi3218/eigen-qld) in a
-future update.
 
 ### Building from source on Linux
 

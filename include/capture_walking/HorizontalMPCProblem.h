@@ -25,12 +25,16 @@
 #include <copra/costFunctions.h>
 #include <copra/LMPC.h>
 #include <copra/PreviewSystem.h>
-#include <eigen-cddlib/Polyhedron.h>
 
 #include <capture_walking/Contact.h>
 #include <capture_walking/HorizontalMPC.h>
 #include <capture_walking/HorizontalMPCSolution.h>
 #include <capture_walking/defs.h>
+
+namespace Eigen
+{
+  using HrepXd = std::pair<Eigen::MatrixXd, Eigen::VectorXd>;
+}
 
 namespace capture_walking
 {
@@ -141,8 +145,6 @@ namespace capture_walking
     void writePython(const std::string & suffix = "");
 
   private:
-    Eigen::HrepXd getDoubleSupportHrep(const Contact & contact1, const Contact & contact2);
-
     Eigen::HrepXd getSingleSupportHrep(const Contact & contact);
 
     void computeZMPRef();
@@ -178,7 +180,6 @@ namespace capture_walking
     Eigen::Matrix<double, 2, HorizontalMPC::STATE_SIZE> dcmFromState_;
     Eigen::Matrix<double, 2, HorizontalMPC::STATE_SIZE> velFromState_;
     Eigen::Matrix<double, 2, HorizontalMPC::STATE_SIZE> zmpFromState_;
-    Eigen::Polyhedron cdd_;
     Eigen::VectorXd initState_;
     HorizontalMPCSolution solution_;
     double comHeight_;

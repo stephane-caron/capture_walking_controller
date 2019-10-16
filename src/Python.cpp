@@ -39,37 +39,6 @@ namespace capture_walking
       << ((suffix.length() > 0) ? "_" : "") << suffix
       << ".py";
 
-    Eigen::VectorXd xMax(NB_STEPS + 1);
-    Eigen::VectorXd xMin(NB_STEPS + 1);
-    Eigen::VectorXd yMax(NB_STEPS + 1);
-    Eigen::VectorXd yMin(NB_STEPS + 1);
-    for (unsigned i = 0; i <= NB_STEPS; i++)
-    {
-      // show DSP constraints from start of DSP, since drawstyle='steps-post'
-      unsigned plotHrepIndex = (0 < i && i == nbInitSupportSteps_) ? 1 
-        : (i == nbInitSupportSteps_ + nbDoubleSupportSteps_ + nbTargetSupportSteps_) ? 3
-        : indexToHrep[i];
-      auto hrep = hreps_[plotHrepIndex];
-      Eigen::Polyhedron poly;
-      xMax[i] = -4242;
-      xMin[i] = +4242;
-      yMax[i] = -4242;
-      yMin[i] = +4242;
-      if (!poly.setHrep(hrep.first, hrep.second))
-      {
-        LOG_WARNING("cddlib conversion error: " << poly.lastErrorMessage());
-        continue;
-      }
-      auto vrep = poly.vrep();
-      for (unsigned j = 0; j < vrep.first.rows(); j++)
-      {
-        xMax[i] = std::max(xMax[i], vrep.first(j, 0));
-        xMin[i] = std::min(xMin[i], vrep.first(j, 0));
-        yMax[i] = std::max(yMax[i], vrep.first(j, 1));
-        yMin[i] = std::min(yMin[i], vrep.first(j, 1));
-      }
-    }
-
     pyScript_.open(fileName.str());
     pyScript_.precision(20);
     pyScript_ << "#!/usr/bin/env python" << std::endl << std::endl
@@ -89,11 +58,6 @@ namespace capture_walking
     pyScript_ << "zeta = " << zeta_ << std::endl
       << "dcm_ref = [" << dcmRef(0) << ", " << dcmRef(1) << "]"
       << std::endl;
-
-    writePythonSerializedVector(xMax, "x_max", 0, NB_STEPS + 1);
-    writePythonSerializedVector(xMin, "x_min", 0, NB_STEPS + 1);
-    writePythonSerializedVector(yMax, "y_max", 0, NB_STEPS + 1);
-    writePythonSerializedVector(yMin, "y_min", 0, NB_STEPS + 1);
 
     pyScript_ << R"(
 assert len(com_x) == n

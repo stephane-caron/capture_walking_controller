@@ -68,7 +68,7 @@ namespace capture_walking
 
   visualization_msgs::Marker Controller::getCoPMarker(const std::string & surfaceName, char color)
   {
-    const std::shared_ptr<mc_tasks::CoPTask> & copTask = (surfaceName == "LeftFootCenter") ? stabilizer_.leftFootTask : stabilizer_.rightFootTask;
+    const std::shared_ptr<mc_tasks::force::CoPTask> & copTask = (surfaceName == "LeftFootCenter") ? stabilizer_.leftFootTask : stabilizer_.rightFootTask;
     Eigen::Vector2d cop_ = copTask->measuredCoP();
     Eigen::Vector3d cop(cop_(0), cop_(1), 0.);
     visualization_msgs::Marker m;
@@ -93,7 +93,7 @@ namespace capture_walking
 
   visualization_msgs::Marker Controller::getForceMarker(const std::string & surfaceName, char color)
   {
-    const std::shared_ptr<mc_tasks::CoPTask> & copTask = (surfaceName == "LeftFootCenter") ? stabilizer_.leftFootTask : stabilizer_.rightFootTask;
+    const std::shared_ptr<mc_tasks::force::CoPTask> & copTask = (surfaceName == "LeftFootCenter") ? stabilizer_.leftFootTask : stabilizer_.rightFootTask;
     Eigen::Vector2d cop_ = copTask->measuredCoP();
     Eigen::Vector3d cop(cop_(0), cop_(1), 0.);
     Eigen::Vector3d force = copTask->measuredWrench().force();

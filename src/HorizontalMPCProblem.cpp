@@ -147,29 +147,6 @@ namespace capture_walking
     return Eigen::HrepXd(worldHrepMat, worldHrepVec);
   }
 
-  Eigen::HrepXd HorizontalMPCProblem::getDoubleSupportHrep(const Contact & contact1, const Contact & contact2)
-  {
-    Eigen::MatrixXd vertices{8, 2};
-    Contact contact1n = contact1.addNoise(1e-4);
-    Contact contact2n = contact2.addNoise(1e-4);
-    vertices <<
-      contact1n.vertex0().x(), contact1n.vertex0().y(),
-      contact1n.vertex1().x(), contact1n.vertex1().y(),
-      contact1n.vertex2().x(), contact1n.vertex2().y(),
-      contact1n.vertex3().x(), contact1n.vertex3().y(),
-      contact2n.vertex0().x(), contact2n.vertex0().y(),
-      contact2n.vertex1().x(), contact2n.vertex1().y(),
-      contact2n.vertex2().x(), contact2n.vertex2().y(),
-      contact2n.vertex3().x(), contact2n.vertex3().y();
-    Eigen::Polyhedron poly;
-    if (!poly.setVertices(vertices))
-    {
-      LOG_WARNING("cddlib conversion error: " << poly.lastErrorMessage());
-      return getSingleSupportHrep(contact2);
-    }
-    return poly.hrep();
-  }
-
   void HorizontalMPCProblem::computeZMPRef()
   {
     velRef_.setZero();
@@ -236,14 +213,16 @@ namespace capture_walking
   void HorizontalMPCProblem::updateZMPConstraint()
   {
     hreps_[0] = getSingleSupportHrep(initContact_);
-    hreps_[1] = getDoubleSupportHrep(initContact_, targetContact_);
     hreps_[2] = getSingleSupportHrep(targetContact_);
-    hreps_[3] = getDoubleSupportHrep(targetContact_, nextContact_);
     long totalRows = 0;
     for (long i = 0; i <= NB_STEPS; i++)
     {
-      auto hrep = hreps_[indexToHrep[i]];
-      totalRows += static_cast<unsigned>(hrep.first.rows());
+      unsigned hrepIndex = indexToHrep[i];
+      if (hrepIndex % 2 == 0)
+      {
+        const auto & hrep = hreps_[hrepIndex];
+        totalRows += static_cast<unsigned>(hrep.first.rows());
+      }
     }
     Eigen::MatrixXd A{totalRows, STATE_SIZE * (NB_STEPS + 1)};
     Eigen::VectorXd b{totalRows};
@@ -251,11 +230,15 @@ namespace capture_walking
     long nextRow = 0;
     for (long i = 0; i <= NB_STEPS; i++)
     {
-      auto hrep = hreps_[indexToHrep[i]];
-      unsigned consRows = static_cast<unsigned>(hrep.first.rows());
-      A.block(nextRow, STATE_SIZE * i, consRows, STATE_SIZE) = hrep.first * zmpFromState_;
-      b.segment(nextRow, consRows) = hrep.second;
-      nextRow += consRows;
+      unsigned hrepIndex = indexToHrep[i];
+      if (hrepIndex % 2 == 0)
+      {
+        const auto & hrep = hreps_[indexToHrep[i]];
+        unsigned consRows = static_cast<unsigned>(hrep.first.rows());
+        A.block(nextRow, STATE_SIZE * i, consRows, STATE_SIZE) = hrep.first * zmpFromState_;
+        b.segment(nextRow, consRows) = hrep.second;
+        nextRow += consRows;
+      }
     }
     zmpCons_ = std::make_shared<copra::TrajectoryConstraint>(A, b);
   }
