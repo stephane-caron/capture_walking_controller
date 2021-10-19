@@ -1,0 +1,35 @@
+cff-version: 1.2.0
+message: "If you found this code helpful, please cite it as below."
+authors:
+- family-names: "Caron"
+  given-names: "Stéphane"
+  orcid: "https://orcid.org/0000-0003-2906-692X"
+title: "Capture Walking Controller"
+doi: 10.1109/TRO.2019.2923971
+date-released: 2018-09-17
+url: "https://github.com/stephane-caron/capture_walking_controller"
+license: "BSD-2-Clause"
+preferred-citation:
+  type: article
+  title: "Capturability-based Pattern Generation for Walking with Variable Height"
+  authors:
+  - family-names: "Caron"
+    given-names: "Stéphane"
+    orcid: "https://orcid.org/0000-0003-2906-692X"
+  - family-names: "Escande"
+    given-names: "Adrien"
+    orcid: "https://orcid.org/0000-0003-3844-7986"
+  - family-names: "Lanari"
+    given-names: "Leonardo"
+    orcid: "https://orcid.org/0000-0002-8546-1783"
+  - family-names: "Mallein"
+    given-names: "Bastien"
+    orcid: "https://orcid.org/0000-0002-9435-420X"
+  journal: "IEEE Transactions on Robotics"
+  doi: "10.1109/TRO.2019.2923971"
+  month: 4
+  start: 517 # First page number
+  end: 536 # Last page number
+  issue: 2
+  volume: 36
+  year: 2020
